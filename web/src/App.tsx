@@ -5,6 +5,10 @@ import PropertyDetailPage from './pages/PropertyDetailPage';
 import UnitsPage from './pages/UnitsPage';
 import TenantsPage from './pages/TenantsPage';
 import InvoicesPage from './pages/InvoicesPage';
+import MaintenancePage from './pages/MaintenancePage';
+import PortalLoginPage from './pages/portal/PortalLoginPage';
+import PortalAuthPage from './pages/portal/PortalAuthPage';
+import PortalDashboardPage from './pages/portal/PortalDashboardPage';
 
 function Nav() {
   return (
@@ -15,6 +19,7 @@ function Nav() {
         <Link to="/units" style={styles.navLink}>Units</Link>
         <Link to="/tenants" style={styles.navLink}>Tenants</Link>
         <Link to="/invoices" style={styles.navLink}>Invoices</Link>
+        <Link to="/maintenance" style={styles.navLink}>Maintenance</Link>
       </div>
       <UserButton afterSignOutUrl="/sign-in" />
     </nav>
@@ -36,13 +41,23 @@ function ProtectedLayout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <Routes>
+      {/* Landlord auth */}
       <Route path="/sign-in/*" element={<div style={styles.authPage}><SignIn routing="path" path="/sign-in" /></div>} />
       <Route path="/sign-up/*" element={<div style={styles.authPage}><SignUp routing="path" path="/sign-up" /></div>} />
+
+      {/* Landlord dashboard routes */}
       <Route path="/properties" element={<ProtectedLayout><PropertiesPage /></ProtectedLayout>} />
       <Route path="/properties/:id" element={<ProtectedLayout><PropertyDetailPage /></ProtectedLayout>} />
       <Route path="/units" element={<ProtectedLayout><UnitsPage /></ProtectedLayout>} />
       <Route path="/tenants" element={<ProtectedLayout><TenantsPage /></ProtectedLayout>} />
       <Route path="/invoices" element={<ProtectedLayout><InvoicesPage /></ProtectedLayout>} />
+      <Route path="/maintenance" element={<ProtectedLayout><MaintenancePage /></ProtectedLayout>} />
+
+      {/* Tenant portal routes (no Clerk auth — magic link based) */}
+      <Route path="/portal/login" element={<PortalLoginPage />} />
+      <Route path="/portal/auth" element={<PortalAuthPage />} />
+      <Route path="/portal" element={<PortalDashboardPage />} />
+
       <Route path="*" element={<Navigate to="/properties" replace />} />
     </Routes>
   );

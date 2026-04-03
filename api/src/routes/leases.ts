@@ -1,8 +1,9 @@
-import { Router, Request, Response } from 'express';
+import express, { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
 import { requireAuth } from '../middleware/auth';
 import { LeaseStatus } from '@prisma/client';
+import { uploadFile, getFileUrl } from '../lib/storage';
 
 const router = Router();
 
@@ -101,6 +102,49 @@ router.patch('/:id', async (req: Request, res: Response) => {
     },
   });
   res.json(lease);
+});
+
+// POST /leases/:id/document — upload lease PDF (raw body, Content-Type: application/pdf)
+router.post('/:id/document', express.raw({ type: ['application/pdf', 'application/octet-stream'], limit: '20mb' }), async (req: Request, res: Response) => {
+  const user = (req as any).user;
+
+  const lease = await prisma.lease.findFirst({
+    where: { id: req.params.id, unit: { property: { userId: user.id } } },
+  });
+  if (!lease) {
+    res.status(404).json({ error: 'Lease not found' });
+    return;
+  }
+
+  const key = `leases/${lease.id}/document.pdf`;
+  await uploadFile(key, req.body as Buffer, 'application/pdf');
+
+  const updated = await prisma.lease.update({
+    where: { id: req.params.id },
+    data: { documentPath: key },
+  });
+
+  res.json({ ok: true, documentPath: updated.documentPath });
+});
+
+// GET /leases/:id/document — get signed URL or redirect for lease PDF
+router.get('/:id/document', async (req: Request, res: Response) => {
+  const user = (req as any).user;
+
+  const lease = await prisma.lease.findFirst({
+    where: { id: req.params.id, unit: { property: { userId: user.id } } },
+  });
+  if (!lease) {
+    res.status(404).json({ error: 'Lease not found' });
+    return;
+  }
+  if (!lease.documentPath) {
+    res.status(404).json({ error: 'No document uploaded' });
+    return;
+  }
+
+  const url = await getFileUrl(lease.documentPath);
+  res.redirect(url);
 });
 
 export default router;

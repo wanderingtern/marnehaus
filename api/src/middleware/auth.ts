@@ -35,3 +35,43 @@ export function requireAuth(): RequestHandler {
     next();
   };
 }
+
+/**
+ * Requires a valid tenant session token (X-Tenant-Token header).
+ * Attaches `req.tenant` for downstream handlers.
+ */
+export function requireTenant(): RequestHandler {
+  return async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers['x-tenant-token'] as string | undefined;
+    if (!token) {
+      res.status(401).json({ error: 'Tenant token required' });
+      return;
+    }
+
+    const tenantToken = await prisma.tenantToken.findUnique({
+      where: { token },
+      include: { tenant: true },
+    });
+
+    if (!tenantToken) {
+      res.status(401).json({ error: 'Invalid token' });
+      return;
+    }
+    if (tenantToken.expiresAt < new Date()) {
+      res.status(401).json({ error: 'Token expired' });
+      return;
+    }
+    if (tenantToken.usedAt && !isSessionToken(tenantToken.expiresAt)) {
+      res.status(401).json({ error: 'Token already used' });
+      return;
+    }
+
+    (req as any).tenant = tenantToken.tenant;
+    next();
+  };
+}
+
+// Session tokens have long expiry (>1h); one-time magic links expire in 1h exactly
+function isSessionToken(expiresAt: Date): boolean {
+  return expiresAt.getTime() - Date.now() > 60 * 60 * 1000;
+}

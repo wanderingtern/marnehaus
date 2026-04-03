@@ -51,9 +51,10 @@ model Unit {
   sqft        Int?
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
-  tenants     Tenant[]
-  leases      Lease[]
-  invoices    Invoice[]
+  tenants              Tenant[]
+  leases               Lease[]
+  invoices             Invoice[]
+  maintenanceRequests  MaintenanceRequest[]
 
   @@unique([propertyId, unitNumber])
   @@map("units")
@@ -66,33 +67,37 @@ enum UnitStatus {
 }
 
 model Tenant {
-  id        String   @id @default(cuid())
-  firstName String
-  lastName  String
-  email     String   @unique
-  phone     String?
-  unitId    String?
-  unit      Unit?    @relation(fields: [unitId], references: [id], onDelete: SetNull)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  leases    Lease[]
-  invoices  Invoice[]
+  id                   String               @id @default(cuid())
+  firstName            String
+  lastName             String
+  email                String               @unique
+  phone                String?
+  unitId               String?
+  unit                 Unit?                @relation(fields: [unitId], references: [id], onDelete: SetNull)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  leases               Lease[]
+  invoices             Invoice[]
+  tokens               TenantToken[]
+  maintenanceRequests  MaintenanceRequest[]
 
   @@map("tenants")
 }
 
 model Lease {
-  id          String      @id @default(cuid())
-  unitId      String
-  unit        Unit        @relation(fields: [unitId], references: [id], onDelete: Cascade)
-  tenantId    String
-  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  startDate   DateTime
-  endDate     DateTime
-  monthlyRent Decimal     @db.Decimal(10, 2)
-  status      LeaseStatus @default(ACTIVE)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id           String      @id @default(cuid())
+  unitId       String
+  unit         Unit        @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  tenantId     String
+  tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  startDate    DateTime
+  endDate      DateTime
+  monthlyRent  Decimal     @db.Decimal(10, 2)
+  status       LeaseStatus @default(ACTIVE)
+  documentPath String?     // storage key for uploaded PDF
+  expiresAt    DateTime?   // lease expiry date
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@map("leases")
 }
@@ -130,4 +135,39 @@ enum InvoiceStatus {
   PAID
   OVERDUE
   CANCELLED
+}
+
+model TenantToken {
+  id        String    @id @default(cuid())
+  token     String    @unique @default(cuid())
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@map("tenant_tokens")
+}
+
+model MaintenanceRequest {
+  id          String            @id @default(cuid())
+  tenantId    String
+  tenant      Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  unitId      String
+  unit        Unit              @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  category    String
+  description String
+  photoPath   String?
+  status      MaintenanceStatus @default(OPEN)
+  landlordNote String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@map("maintenance_requests")
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
 }
