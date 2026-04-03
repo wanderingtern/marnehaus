@@ -24,6 +24,8 @@
     "express-async-errors": "^3.1.1",
     "helmet": "^8.0.0",
     "morgan": "^1.10.0",
+    "resend": "^6.10.0",
+    "stripe": "^22.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
@@ -31,15 +33,15 @@
     "@types/express": "^4.17.21",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.9.0",
+    "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^8.14.0",
     "@typescript-eslint/parser": "^8.14.0",
+    "@vitest/coverage-v8": "^2.1.5",
     "eslint": "^9.14.0",
     "prisma": "^5.22.0",
+    "supertest": "^7.0.0",
     "tsx": "^4.19.2",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.5",
-    "@vitest/coverage-v8": "^2.1.5",
-    "supertest": "^7.0.0",
-    "@types/supertest": "^6.0.2"
+    "vitest": "^2.1.5"
   }
 }

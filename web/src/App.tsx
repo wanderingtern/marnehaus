@@ -4,6 +4,7 @@ import PropertiesPage from './pages/PropertiesPage';
 import PropertyDetailPage from './pages/PropertyDetailPage';
 import UnitsPage from './pages/UnitsPage';
 import TenantsPage from './pages/TenantsPage';
+import InvoicesPage from './pages/InvoicesPage';
 
 function Nav() {
   return (
@@ -13,6 +14,7 @@ function Nav() {
         <Link to="/properties" style={styles.navLink}>Properties</Link>
         <Link to="/units" style={styles.navLink}>Units</Link>
         <Link to="/tenants" style={styles.navLink}>Tenants</Link>
+        <Link to="/invoices" style={styles.navLink}>Invoices</Link>
       </div>
       <UserButton afterSignOutUrl="/sign-in" />
     </nav>
@@ -40,6 +42,7 @@ export default function App() {
       <Route path="/properties/:id" element={<ProtectedLayout><PropertyDetailPage /></ProtectedLayout>} />
       <Route path="/units" element={<ProtectedLayout><UnitsPage /></ProtectedLayout>} />
       <Route path="/tenants" element={<ProtectedLayout><TenantsPage /></ProtectedLayout>} />
+      <Route path="/invoices" element={<ProtectedLayout><InvoicesPage /></ProtectedLayout>} />
       <Route path="*" element={<Navigate to="/properties" replace />} />
     </Routes>
   );

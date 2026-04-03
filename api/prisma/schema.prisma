@@ -8,13 +8,16 @@ datasource db {
 }
 
 model User {
-  id         String     @id @default(cuid())
-  clerkId    String     @unique
-  email      String     @unique
-  name       String?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  properties Property[]
+  id                String     @id @default(cuid())
+  clerkId           String     @unique
+  email             String     @unique
+  name              String?
+  stripeAccountId   String?    // Stripe Connect account ID
+  stripeOnboarded   Boolean    @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  properties        Property[]
+  invoices          Invoice[]
 
   @@map("users")
 }
@@ -50,6 +53,7 @@ model Unit {
   updatedAt   DateTime   @updatedAt
   tenants     Tenant[]
   leases      Lease[]
+  invoices    Invoice[]
 
   @@unique([propertyId, unitNumber])
   @@map("units")
@@ -72,6 +76,7 @@ model Tenant {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   leases    Lease[]
+  invoices  Invoice[]
 
   @@map("tenants")
 }
@@ -96,4 +101,33 @@ enum LeaseStatus {
   ACTIVE
   EXPIRED
   TERMINATED
+}
+
+model Invoice {
+  id                       String        @id @default(cuid())
+  userId                   String
+  user                     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  unitId                   String
+  unit                     Unit          @relation(fields: [unitId], references: [id], onDelete: Cascade)
+  tenantId                 String
+  tenant                   Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  amountCents              Int           // amount in cents to avoid float issues
+  dueDate                  DateTime
+  status                   InvoiceStatus @default(PENDING)
+  stripePaymentIntentId    String?       @unique
+  stripeCheckoutSessionId  String?       @unique
+  stripePaymentUrl         String?
+  paidAt                   DateTime?
+  emailSentAt              DateTime?
+  createdAt                DateTime      @default(now())
+  updatedAt                DateTime      @updatedAt
+
+  @@map("invoices")
+}
+
+enum InvoiceStatus {
+  PENDING
+  PAID
+  OVERDUE
+  CANCELLED
 }

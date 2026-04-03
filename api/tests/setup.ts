@@ -9,7 +9,7 @@ vi.mock('@clerk/express', () => ({
 // Mock Prisma client
 vi.mock('../src/lib/prisma', () => {
   const mockPrisma = {
-    user: { findUnique: vi.fn(), create: vi.fn(), upsert: vi.fn() },
+    user: { findUnique: vi.fn(), create: vi.fn(), upsert: vi.fn(), update: vi.fn(), updateMany: vi.fn() },
     property: {
       findMany: vi.fn(),
       findFirst: vi.fn(),
@@ -27,6 +27,7 @@ vi.mock('../src/lib/prisma', () => {
     tenant: {
       findMany: vi.fn(),
       findFirst: vi.fn(),
+      findUnique: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
@@ -35,6 +36,14 @@ vi.mock('../src/lib/prisma', () => {
       findMany: vi.fn(),
       create: vi.fn(),
       update: vi.fn(),
+    },
+    invoice: {
+      findMany: vi.fn(),
+      findFirst: vi.fn(),
+      findUnique: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
+      updateMany: vi.fn(),
     },
   };
   return { prisma: mockPrisma };

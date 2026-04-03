@@ -91,3 +91,21 @@ export interface Lease {
   monthlyRent: string;
   status: 'ACTIVE' | 'EXPIRED' | 'TERMINATED';
 }
+
+export interface Invoice {
+  id: string;
+  userId: string;
+  unitId: string;
+  tenantId: string;
+  amountCents: number;
+  dueDate: string;
+  status: 'PENDING' | 'PAID' | 'OVERDUE' | 'CANCELLED';
+  stripePaymentUrl?: string;
+  stripeCheckoutSessionId?: string;
+  stripePaymentIntentId?: string;
+  paidAt?: string;
+  emailSentAt?: string;
+  createdAt: string;
+  unit?: Unit & { property?: Property };
+  tenant?: Tenant;
+}

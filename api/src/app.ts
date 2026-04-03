@@ -11,6 +11,8 @@ import unitsRouter from './routes/units';
 import tenantsRouter from './routes/tenants';
 import leasesRouter from './routes/leases';
 import webhooksRouter from './routes/webhooks';
+import stripeRouter from './routes/stripe';
+import invoicesRouter from './routes/invoices';
 
 export function createApp() {
   const app = express();
@@ -36,6 +38,8 @@ export function createApp() {
   app.use('/api/units', unitsRouter);
   app.use('/api/tenants', tenantsRouter);
   app.use('/api/leases', leasesRouter);
+  app.use('/api/stripe', stripeRouter);
+  app.use('/api/invoices', invoicesRouter);
 
   app.use(errorHandler);
 
